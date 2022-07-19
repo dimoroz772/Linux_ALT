@@ -1,1 +1,94 @@
+Установка/настройка контроллера домена Samba DC на OC Linux ALT Server 10
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Образ установщика ОС брался с сайта: https://getalt.org/ru/
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+При создании виртуаки рекомендуется выделить: Sockets: 2; Cores: 2; Memory(MiB): 8192.
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+На этапе установки системы, в пункте "дополнительные приложения" нужно выбрать следующие пункты:
+1. Утилиты для диагностики;
+2. Samba-сервер (AD, SMB/Client).
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+На этапе настройки сети, нужно выставить следующие настройки:
+Имя компьютера: dc1.test.local |#|#| test.local - доменное имя;
+Конфигурация: Вручную; |#|#| После выбора пункта "Вручную", становятся активными дополнительные строки настройки сети(IP, Шлюз по умолчанию, DNS-серверы, Домены поиска);
+IP: 192.168.122.100/24 (255.255.255.0) |#|#| !!!ВАЖНО!!! После того как прописали IP-address and Mask, !!!ОБЯЗАТЕЛЬНО!!! нужно нажать клавишу "Добавить";
+Шлюз по умолчанию: 192.168.122.1;
+DNS-серверы: 77.88.8.88 |#|#| !!!ВАЖНО!!! В моём случае, что на ОС РедОС, что на ОС ALT, Samba DC поднялся только DNS-сервером Яндекса;
+Домены поиска: test.local |#|#| Указываем самого себя.
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Все действия выполняются из под пользователя root
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+После установки ОС нужно обновить систему следующей командой:
+apt-get update && apt-get dist-upgrade -y
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+update-kernel |#|#| Обновление ядра ОС
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+reboot |#|#| Перезагрузка ОС
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Еще раз проверяем наличие всех необходимых пакетов в ОС:
+apt-get install task-samba-dc -y
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+После установки всех необходимых пакетов, требуется очистить каталоги и удалить конфигурационный файл smb.conf:
+rm -f /etc/samba/smb.conf
+rm -rf /var/lib/samba
+rm -rf /var/cache/samba
+mkdir -p /var/lib/samba/sysvol
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+!!!Пароль администратора должен быть не менее 7 символов и содержать символы как минимум трёх групп из четырёх возможных: латинских букв в верхнем и нижнем регистрах, чисел и других небуквенно-цифровых символов.!!!
+Запуск интерактивного создания домена:
+samba-tool domain provision
+Realm [TEST.LOCAL]: 
+Domain [TEST]: 
+Server Role (dc, member, standalone) [dc]: 
+DNS backend (SAMBA_INTERNAL, BIND9_FLATFILE, BIND9_DLZ, NONE) [SAMBA_INTERNAL]: 
+DNS forwarder IP address (write 'none' to disable forwarding) [77.88.8.88]: 
+Administrator password: 
+Retype password: 
+Looking up IPv4 addresses
+More than one IPv4 address found. Using 192.168.122.1
+Looking up IPv6 addresses
+No IPv6 address will be assigned
+Setting up share.ldb
+Setting up secrets.ldb
+Setting up the registry
+Setting up the privileges database
+Setting up idmap db
+Setting up SAM db
+Setting up sam.ldb partitions and settings
+Setting up sam.ldb rootDSE
+Pre-loading the Samba 4 and AD schema
+Adding DomainDN: DC=test,DC=local
+Adding configuration container
+Setting up sam.ldb schema
+Setting up sam.ldb configuration data
+Setting up display specifiers
+Modifying display specifiers
+Adding users container
+Modifying users container
+Adding computers container
+Modifying computers container
+Setting up sam.ldb data
+Setting up well known security principals
+Setting up sam.ldb users and groups
+Setting up self join
+Adding DNS accounts
+Creating CN=MicrosoftDNS,CN=System,DC=test,DC=local
+Creating DomainDnsZones and ForestDnsZones partitions
+Populating DomainDnsZones and ForestDnsZones partitions
+Setting up sam.ldb rootDSE marking as synchronized
+Fixing provision GUIDs
+A Kerberos configuration suitable for Samba 4 has been generated at /var/lib/samba/private/krb5.conf
+Once the above files are installed, your Samba4 server will be ready to use
+Server Role:           active directory domain controller
+Hostname:              c228
+NetBIOS Domain:        DOMAIN
+DNS Domain:            test.local
+DOMAIN SID:            S-1-5-21-80639820-2350372464-3293631772
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+systemctl status samba.service |#|#| Команда для проверки статуса службы samba.service (По умолчанию должен быть не активен)
+systemctl start samba.service |#|#| Команда для запуска службы samba.service
+systemctl enable samba.service |#|#| Добавление службы samba.service в автозагрузку вместе с ОС
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+reboot
+
 
