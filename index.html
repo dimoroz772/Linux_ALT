@@ -1,1 +1,111 @@
+<head>
+  <title>ALT Linux</title>
+  <link rel="shortcut icon" href="./Alt_Logo.png" type="image/png">
+</head>
+ <head>
+  <meta charset="utf-8">
+ </head>
+<style>
+body{
+    background-image: url('ALT_Fon.jpg');
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-attachment: fixed;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 20px;
+    color: #333;
+}
+a {
+    text-decoration: none;
+}
+p {
+    font-size: 20px;
+  }
+</style>
+  
+  
+<br/>
+<p align="center">
+<img src="./Alt_Logo.png" width="170" height="150"/>
+</p><br/>
+<h1 align="Center" style="color:#ffffff"><i>ALT Linux</i></h1>
+ <br/>
+ <br/>
+<style>
 
+.btn:link,
+.btn:visited {
+    text-transform: uppercase;
+    text-decoration: none;
+    padding: 15px 40px;
+    display: inline-block;
+    border-radius: 100px;
+    transition: all .2s;
+    position: absolute;
+}
+
+.btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+.btn:active {
+    transform: translateY(-1px);
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+}
+
+.btn-white {
+    background-color: #fff;
+    color: #777;
+}
+
+.btn::after {
+    content: "";
+    display: inline-block;
+    height: 100%;
+    width: 100%;
+    border-radius: 100px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: -1;
+    transition: all .4s;
+}
+
+.btn-white::after {
+    background-color: #ffd000;
+}
+
+.btn:hover::after {
+    transform: scaleX(1.4) scaleY(1.6);
+    opacity: 0;
+}
+
+.btn-animated {
+    animation: moveInBottom 5s ease-out;
+    animation-fill-mode: backwards;
+}
+
+@keyframes moveInBottom {
+    0% {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0px);
+    }
+}
+</style>
+
+<div class="text-box">
+  <a href="./Web_Samba_DC.html" class="btn btn-white btn-animate">Samba DC</a>
+</div>
+<br/>
+<br/>
+<br/>
+<div class="text-box">
+  <a href="https://dimoroz772.github.io/dimoroz772/" class="btn btn-white btn-animate">Back</a>
+</div>
