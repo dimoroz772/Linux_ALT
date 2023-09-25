@@ -1,6 +1,6 @@
 <br/>
 <p align="center">
-<img src="./Alt_Logo.png" width="150" height="150"/>
+<img src="./Alt_Logo.png" width="170" height="150"/>
 </p><br/>
 <h1 align="Center"><i>ALT Linux</i></h1>
  <br/>
