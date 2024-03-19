@@ -1,280 +1,170 @@
 <head>
-  <title>Samba_DC</title>
+  <title>Samba DC</title>
   <link rel="shortcut icon" href="./Alt_Logo.png" type="image/png">
 </head>
  <head>
   <meta charset="utf-8">
  </head>
 <style>
+.neonText1 {
+  color: #87CEFA;
+  text-shadow:
+      0 0 1px #4169E1,
+      0 0 1px #4169E1,
+      0 0 1px #4169E1,
+      0 0 1px #4169E1,
+      0 0 1px #4169E1,
+      0 0 1px #4169E1,
+      0 0 1px #4169E1,
+      0 0 1px #4169E1;
+}
+.neonText2 {
+  color: #00FF00;
+  text-shadow:
+      0 0 1px #006400,
+      0 0 1px #006400,
+      0 0 1px #006400,
+      0 0 1px #006400,
+      0 0 1px #006400,
+      0 0 1px #006400,
+      0 0 1px #006400,
+      0 0 1px #006400;
+}
+/* Additional styling */
 body{
-    background-image: url('Fon_Alt.jpg');
+    background-color: black;
     background-repeat: no-repeat;
     background-size: cover;
     background-attachment: fixed;
-    max-width: 1000px;
+    max-width: 1400px;
     margin: 0 auto;
     padding: 20px;
-    color: #333;
+    color: #cfcfcf;
 }
 a {
     text-decoration: none;
 }
 p {
   text-indent: 1.5em;
-  text-align: justify;
+  font-family: monospace;
+  font-weight: 500;
+  white-space: pre;
+  line-height: 2;
+  letter-spacing: 1px;
 }
 </style>
-  
-  
-<br/>
-<p align="center">
-<Center>
-<img src="./Alt_Logo.png" width="170" height="150"/>
-</Center>
-</p><br/>
-<h1 align="Center" style="color:#c2c6ff"><i>Samba_DC</i></h1>
- <br/>
- <br/>
-<style>
+<div class="container">
+<p class="neonText1">
+Установка/настройка контроллера домена Samba DC на OC Linux ALT Server 10
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+Образ установщика ОС брался с сайта: https://getalt.org/ru/
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+При создании виртуаки рекомендуется выделить: Sockets: 2; Cores: 2; Memory(MiB): 8192.
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+На этапе установки системы, в пункте "дополнительные приложения" нужно выбрать следующие пункты:
 
-.btn:link,
-.btn:visited {
-    text-transform: uppercase;
-    text-decoration: none;
-    padding: 15px 40px;
-    display: inline-block;
-    border-radius: 100px;
-    transition: all .2s;
-    position: absolute;
-}
+1. Утилиты для диагностики;
+2. Samba-сервер (AD, SMB/Client).
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+На этапе настройки сети, нужно выставить следующие настройки:
 
-.btn:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-}
+Имя компьютера: dc1.test.local |#|#| test.local - доменное имя;
+Конфигурация: Вручную; |#|#| После выбора пункта "Вручную", становятся активными дополнительные строки настройки сети(IP, Шлюз по умолчанию, DNS-серверы,
+Домены поиска);
+IP: 192.168.122.100/24 (255.255.255.0) |#|#| !!!ВАЖНО!!! После того как прописали IP-address and Mask, !!!ОБЯЗАТЕЛЬНО!!! нужно нажать клавишу "Добавить";
+Шлюз по умолчанию: 192.168.122.1;
+DNS-серверы: 77.88.8.88 |#|#| !!!ВАЖНО!!! В моём случае, что на ОС РедОС, что на ОС ALT, Samba DC поднялся только DNS-сервером Яндекса;
+Домены поиска: test.local |#|#| Указываем самого себя.
+------------
+Все действия выполняются из под пользователя root
+------------
+После установки ОС нужно обновить систему следующей командой:
 
-.btn:active {
-    transform: translateY(-1px);
-    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
-}
+<a class="neonText2">apt-get update && apt-get dist-upgrade -y</a>
+------------
+<a class="neonText2">update-kernel</a> |#|#| Обновление ядра ОС
+------------
+<a class="neonText2">reboot</a> |#|#| Перезагрузка ОС
+------------
+Еще раз проверяем наличие всех необходимых пакетов в ОС:
 
-.btn-white {
-    background-color: #fff;
-    color: #000000;
-}
+<a class="neonText2">apt-get install task-samba-dc -y</a> |#|#| (Должны установиться данные пакеты: samba-DC python-module-samba-DC samba-DC-common samba-DC-winbind-clients 
+samba-DC-winbind samba-DC-client krb5-kinit)
+------------
+После установки всех необходимых пакетов, требуется очистить каталоги и удалить конфигурационный файл smb.conf:
 
-.btn::after {
-    content: "";
-    display: inline-block;
-    height: 100%;
-    width: 100%;
-    border-radius: 100px;
-    position: absolute;
-    top: 0;
-    left: 0;
-    z-index: -1;
-    transition: all .4s;
-}
+<a class="neonText2">rm -f /etc/samba/smb.conf</a>
+------------
+<a class="neonText2">rm -rf /var/lib/samba</a>
+------------
+<a class="neonText2">rm -rf /var/cache/samba</a>
+------------
+<a class="neonText2">mkdir -p /var/lib/samba/sysvol</a>
+------------
+!!!Пароль администратора должен быть не менее 7 символов и содержать символы как минимум трёх групп из четырёх возможных: латинских букв в верхнем и нижнем
+регистрах, чисел и других небуквенно-цифровых символов.!!!
+Запуск интерактивного создания домена:
 
-.btn-white::after {
-    background-color: #c2c6ff;
-}
+<a class="neonText2">samba-tool domain provision</a>
 
-.btn:hover::after {
-    transform: scaleX(1.4) scaleY(1.6);
-    opacity: 0;
-}
-
-.btn-animated {
-    animation: moveInBottom 5s ease-out;
-    animation-fill-mode: backwards;
-}
-
-@keyframes moveInBottom {
-    0% {
-        opacity: 0;
-        transform: translateY(30px);
-    }
-
-    100% {
-        opacity: 1;
-        transform: translateY(0px);
-    }
-}
-</style>
-<style> 
-  table{
-  border: 1px black solid;
-  }
-  th, td {
-    border: 1px solid grey; /*  бахнуть на rgba(255,255,0,0); */
-  }
-</style>
-
-<h3><i style="color:rgb(255, 255, 255)"><p align="Left">Всем привет! В данном посте рассматривается установка и настройка контроллера домена Samba DC на OC Linux ALT Server 10.</p></i></h3>
-<i style="color:rgb(255, 255, 255)"><p align="Left">Образ установщика ОС брался с сайта <a href="https://getalt.org/ru/" style="color:rgb(255, 196, 0)">Российского разработчика операционных систем «Альт»</a>.</p></i>
-<h3><i style="color:rgb(255, 255, 255)"><p align="Left">При создании виртуаки рекомендуется выделить:</p></i></h3>
-<i style="color:rgb(255, 255, 255)"><p align="Left">— Sockets: 2;</p></i>
-<i style="color:rgb(255, 255, 255)"><p align="Left">— Cores: 2;</p></i>
-<i style="color:rgb(255, 255, 255)"><p align="Left">— Memory(MiB): 8192;</p></i>
-<i style="color:rgb(255, 255, 255)"><p align="Left">— HDD(GB): 32.</p></i>
-<Center>
-<h2><i style="color:rgb(255, 255, 255)">Все описанные ниже действия в командной строке выполнялись под пользователем root</i></h2>
-</Center>
-<h3><i style="color:rgb(255, 255, 255)"><p align="Left">На этапе установки системы, в пункте "дополнительные приложения" нужно выбрать следующие пункты:</p></i></h3>
-<i style="color:rgb(255, 255, 255)"><p align="Left">1. Утилиты для диагностики;</p></i>
-<i style="color:rgb(255, 255, 255)"><p align="Left">2. Samba-сервер (AD, SMB/Client).</p></i>
-<h3><i style="color:rgb(255, 255, 255)"><p align="Left">На этапе настройки сети, нужно выставить следующие настройки:</p></i></h3>
-<i style="color:rgb(255, 255, 255)"><p align="Left">Имя компьютера:</p></i>
-<table>
-  <tbody>
-   <tr>
-    <td align="Left" style="color:rgb(255, 196, 0)" width="400px"><b><i>dc1.test.local</i></b></td>
-    <td align="Left" style="color:#00ff15" width="600px"><b><i>test.local - доменное имя.</i></b></td>
-   </tr>
-  </tbody>
-</table>
-<i style="color:rgb(255, 255, 255)"><p align="Left">Конфигурация: <i style="color:rgb(255, 196, 0)">Вручную</i>. После выбора пункта <i style="color:rgb(255, 196, 0)">Вручную</i>, становятся активными дополнительные строки настройки сети: <i style="color:rgb(255, 196, 0)">IP, Шлюз по умолчанию, DNS-серверы, Домены поиска</i>.</p></i>
-<table>
- <tbody>
-  <tr>
-   <td align="Left" style="color:rgb(255, 196, 0)" width="400px"><b><i>IP: 192.168.122.100/24</i></b></td>
-   <td align="Left" style="color:#00ff15" width="600px"><b><i>!!!ВАЖНО!!! После того как прописали IP-address and Mask, !!!ОБЯЗАТЕЛЬНО!!! нужно нажать клавишу "Добавить".</i></b></td>
-  </tr>
-  <tr>
-   <th style="color:rgb(255, 196, 0)" colspan="2" align="Left" width="1000px"><i>Шлюз по умолчанию: 192.168.122.1</i></th>
-  </tr>
-  <tr>
-   <td align="Left" style="color:rgb(255, 196, 0)" width="400px"><b><i>DNS-серверы: 77.88.8.88</i></b></td>
-   <td align="Left" style="color:#00ff15" width="600px"><b><i>!!!ВАЖНО!!! В моём случае, что на ОС РедОС, что на ОС ALT, Samba DC поднялся только DNS-сервером Яндекса.</i></b></td>
-  </tr>
-  <tr>
-    <td align="Left" style="color:rgb(255, 196, 0)" width="400px"><b><i>Домены поиска: test.local</i></b></td>
-    <td align="Left" style="color:#00ff15" width="600px"><b><i>Указываем самого себя.</i></b></td>
-  </tr>
- </tbody>
-</table>
-<i style="color:rgb(255, 255, 255)"><p align="Left">После установки ОС нужно обновить систему следующей командой:</p></i>
-<table>
-  <tbody>
-   <tr>
-    <td align="Left" style="color:rgb(255, 196, 0)" width="400px"><b><i># apt-get update && apt-get dist-upgrade -y</i></b></td>
-    <td align="Left" style="color:#00ff15" width="600px"><b><i>Команда для поиска и обновления пакетов установленных на ОС.</i></b></td>
-   </tr>
-   <tr>
-    <td align="Left" style="color:rgb(255, 196, 0)" width="400px"><b><i># update-kernel</i></b></td>
-    <td align="Left" style="color:#00ff15" width="600px"><b><i>Команда для Обновление ядра ОС.</i></b></td>
-   </tr>
-   <tr>
-    <td align="Left" style="color:rgb(255, 196, 0)" width="400px"><b><i># reboot</i></b></td>
-    <td align="Left" style="color:#00ff15" width="600px"><b><i>Перезагрузка ОС.</i></b></td>
-   </tr>
-  </tbody>
-</table>
-<i style="color:rgb(255, 255, 255)"><p align="Left">Еще раз проверяем наличие всех необходимых пакетов в ОС:</p></i>
-<table>
-  <tbody>
-   <tr>
-    <td align="Left" style="color:rgb(255, 196, 0)" width="400px"><b><i># apt-get install task-samba-dc -y</i></b></td>
-    <td align="Left" style="color:#00ff15" width="600px"><b><i>Должны установиться следующие пакеты:<br/> samba-DC<br/> python-module-samba-DC<br/> samba-DC-common<br/> samba-DC-winbind-clients<br/> samba-DC-winbind<br/> samba-DC-client<br/> krb5-kinit</i></b></td>
-   </tr>
-  </tbody>
-</table>
-<i style="color:rgb(255, 255, 255)"><p align="Left">После установки всех необходимых пакетов, требуется очистить каталоги и удалить конфигурационный файл <i style="color:rgb(255, 196, 0)">smb.conf</i>:</p></i>
-<table>
-  <tbody>
-    <tr>
-      <th style="color:rgb(255, 196, 0)" colspan="2" align="Left" width="1000px"><i>rm -f /etc/samba/smb.conf</i></th>
-    </tr>
-    <tr>
-      <th style="color:rgb(255, 196, 0)" colspan="2" align="Left" width="1000px"><i>rm -rf /var/lib/samba</i></th>
-    </tr>
-    <tr>
-      <th style="color:rgb(255, 196, 0)" colspan="2" align="Left" width="1000px"><i>rm -rf /var/cache/samba</i></th>
-    </tr>
-    <tr>
-      <th style="color:rgb(255, 196, 0)" colspan="2" align="Left" width="1000px"><i>mkdir -p /var/lib/samba/sysvol</i></th>
-    </tr>
-  </tbody>
-</table>
-<h2><i style="color:rgb(255, 0, 0)"><p align="Left"><b>Пароль администратора должен быть не менее 7 символов и содержать символы как минимум трёх групп из четырёх возможных: латинских букв в верхнем и нижнем регистрах, чисел и других небуквенно-цифровых символов!!!</b></p></i></h2>
-<i style="color:rgb(255, 255, 255)"><p align="Left">Запуск интерактивного создания домена:</p></i>
-<table>
-  <tbody>
-    <tr>
-      <th style="color:rgb(255, 196, 0)" colspan="2" align="Left" width="1000px"><i>samba-tool domain provision<br/>
-        Realm [TEST.LOCAL]: <br/>
-        Domain [TEST]: <br/>
-        Server Role (dc, member, standalone) [dc]: <br/>
-        DNS backend (SAMBA_INTERNAL, BIND9_FLATFILE, BIND9_DLZ, NONE) [SAMBA_INTERNAL]: <br/>
-        DNS forwarder IP address (write 'none' to disable forwarding) [77.88.8.88]: <br/>
-        Administrator password: <br/>
-        Retype password: <br/>
-        Looking up IPv4 addresses<br/>
-        More than one IPv4 address found. Using 192.168.122.1<br/>
-        Looking up IPv6 addresses<br/>
-        No IPv6 address will be assigned<br/>
-        Setting up share.ldb<br/>
-        Setting up secrets.ldb<br/>
-        Setting up the registry<br/>
-        Setting up the privileges database<br/>
-        Setting up idmap db<br/>
-        Setting up SAM db<br/>
-        Setting up sam.ldb partitions and settings<br/>
-        Setting up sam.ldb rootDSE<br/>
-        Pre-loading the Samba 4 and AD schema<br/>
-        Adding DomainDN: DC=test,DC=local<br/>
-        Adding configuration container<br/>
-        Setting up sam.ldb schema<br/>
-        Setting up sam.ldb configuration data<br/>
-        Setting up display specifiers<br/>
-        Modifying display specifiers<br/>
-        Adding users container<br/>
-        Modifying users container<br/>
-        Adding computers container<br/>
-        Modifying computers container<br/>
-        Setting up sam.ldb data<br/>
-        Setting up well known security principals<br/>
-        Setting up sam.ldb users and groups<br/>
-        Setting up self join<br/>
-        Adding DNS accounts<br/>
-        Creating CN=MicrosoftDNS,CN=System,DC=test,DC=local<br/>
-        Creating DomainDnsZones and ForestDnsZones partitions<br/>
-        Populating DomainDnsZones and ForestDnsZones partitions<br/>
-        Setting up sam.ldb rootDSE marking as synchronized<br/>
-        Fixing provision GUIDs<br/>
-        A Kerberos configuration suitable for Samba 4 has been generated at /var/lib/samba/private/krb5.conf<br/>
-        Once the above files are installed, your Samba4 server will be ready to use<br/>
-        Server Role:           active directory domain controller<br/>
-        Hostname:              c228<br/>
-        NetBIOS Domain:        DOMAIN<br/>
-        DNS Domain:            test.local<br/>
-        DOMAIN SID:            S-1-5-21-80639820-2350372464-3293631772</i></th>
-    </tr>
-    <tr>
-      <td align="Left" style="color:rgb(255, 196, 0)" width="400px"><b><i># systemctl status samba.service</i></b></td>
-      <td align="Left" style="color:#00ff15" width="600px"><b><i>Команда для проверки статуса службы samba.service (По умолчанию должен быть не активен).</i></b></td>
-     </tr>
-     <tr>
-      <td align="Left" style="color:rgb(255, 196, 0)" width="400px"><b><i># systemctl start samba.service</i></b></td>
-      <td align="Left" style="color:#00ff15" width="600px"><b><i>Команда для запуска службы samba.service.</i></b></td>
-     </tr>
-     <tr>
-      <td align="Left" style="color:rgb(255, 196, 0)" width="400px"><b><i># systemctl enable samba.service</i></b></td>
-      <td align="Left" style="color:#00ff15" width="600px"><b><i>Добавление службы samba.service в автозагрузку при включении ОС.</i></b></td>
-     </tr>
-     <tr>
-      <td align="Left" style="color:rgb(255, 196, 0)" width="400px"><b><i># reboot</i></b></td>
-      <td align="Left" style="color:#00ff15" width="600px"><b><i>Команда для перезапуска ВМ.</i></b></td>
-     </tr>
-     <tr>
-      <td align="Left" style="color:rgb(255, 196, 0)" width="400px"><b><i># samba-tool domain info 127.0.0.1</i></b></td>
-      <td align="Left" style="color:#00ff15" width="600px"><b><i>Команда для вывода информации о домене.</i></b></td>
-     </tr>
-  </tbody>
-</table>
-<br/>
-
-<div class="text-box">
-  <a href="https://dimoroz772.github.io/Linux_ALT/" class="btn btn-white btn-animate">Back</a>
+Realm [TEST.LOCAL]: 
+Domain [TEST]: 
+Server Role (dc, member, standalone) [dc]: 
+DNS backend (SAMBA_INTERNAL, BIND9_FLATFILE, BIND9_DLZ, NONE) [SAMBA_INTERNAL]: 
+DNS forwarder IP address (write 'none' to disable forwarding) [77.88.8.88]: 
+Administrator password: 
+Retype password: 
+Looking up IPv4 addresses
+More than one IPv4 address found. Using 192.168.122.1
+Looking up IPv6 addresses
+No IPv6 address will be assigned
+Setting up share.ldb
+Setting up secrets.ldb
+Setting up the registry
+Setting up the privileges database
+Setting up idmap db
+Setting up SAM db
+Setting up sam.ldb partitions and settings
+Setting up sam.ldb rootDSE
+Pre-loading the Samba 4 and AD schema
+Adding DomainDN: DC=test,DC=local
+Adding configuration container
+Setting up sam.ldb schema
+Setting up sam.ldb configuration data
+Setting up display specifiers
+Modifying display specifiers
+Adding users container
+Modifying users container
+Adding computers container
+Modifying computers container
+Setting up sam.ldb data
+Setting up well known security principals
+Setting up sam.ldb users and groups
+Setting up self join
+Adding DNS accounts
+Creating CN=MicrosoftDNS,CN=System,DC=test,DC=local
+Creating DomainDnsZones and ForestDnsZones partitions
+Populating DomainDnsZones and ForestDnsZones partitions
+Setting up sam.ldb rootDSE marking as synchronized
+Fixing provision GUIDs
+A Kerberos configuration suitable for Samba 4 has been generated at /var/lib/samba/private/krb5.conf
+Once the above files are installed, your Samba4 server will be ready to use
+Server Role:           active directory domain controller
+Hostname:              c228
+NetBIOS Domain:        DOMAIN
+DNS Domain:            test.local
+DOMAIN SID:            S-1-5-21-80639820-2350372464-3293631772
+------------
+<a class="neonText2">systemctl status samba.service</a> |#|#| Команда для проверки статуса службы samba.service (По умолчанию должен быть не активен)
+------------
+<a class="neonText2">systemctl start samba.service</a> |#|#| Команда для запуска службы samba.service
+------------
+<a class="neonText2">systemctl enable samba.service</a> |#|#| Добавление службы samba.service в автозагрузку при включении ОС
+------------
+<a class="neonText2">reboot</a> |#|#| Команда для перезагрузки АРМ/VM
+------------
+<a class="neonText2">samba-tool domain info 127.0.0.1</a> |#|#| Команда для вывода информации о домене.
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+На этом инструкция закончена! Спасибо за внимание!
+</p>
 </div>
